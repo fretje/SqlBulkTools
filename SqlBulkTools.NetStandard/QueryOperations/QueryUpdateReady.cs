@@ -30,7 +30,7 @@ namespace SqlBulkTools
         private string _identityColumn;
         private readonly Dictionary<string, string> _collationColumnDic;
         private int? _batchQuantity;
-        private List<PropInfo> _propertyInfoList;
+        private readonly List<PropInfo> _propertyInfoList;
 
         /// <summary>
         ///

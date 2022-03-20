@@ -33,7 +33,7 @@ namespace SqlBulkTools.IntegrationTests
             {
                 customIdentityColumnList.Add(new CustomIdentityColumnNameTest
                 {
-                    ColumnA = i.ToString()               
+                    ColumnA = i.ToString()
                 });
             }
 
@@ -206,7 +206,7 @@ namespace SqlBulkTools.IntegrationTests
                         .AddColumn(x => x.Competition)
                         .AddColumn(x => x.MinEstimate.CreationDate, "MinEstimate_CreationDate") // Testing custom column mapping
                         .AddColumn(x => x.MinEstimate.TotalCost)
-                        .AddColumn(x => x.SearchVolume)                                                
+                        .AddColumn(x => x.SearchVolume)
                         .BulkInsert()
                         .SetIdentityColumn(x => x.Id)
                         .Commit(conn);
@@ -487,7 +487,7 @@ namespace SqlBulkTools.IntegrationTests
 
             using var conn = new SqlConnection(_dataAccess.ConnectionString);
 
-            Assert.Throws<IdentityException>(() => 
+            Assert.Throws<IdentityException>(() =>
                 bulk.Setup<Book>()
                     .ForCollection(_bookCollection)
                     .WithTable("Books")
@@ -571,7 +571,7 @@ namespace SqlBulkTools.IntegrationTests
 
             // Assert
             Assert.True(_dataAccess.GetSchemaTest2List().Any());
-        }    
+        }
 
         [Fact]
         public void SqlBulkTools_WithCustomSchema_WhenWithTableIncludesSchemaName()
@@ -689,7 +689,7 @@ namespace SqlBulkTools.IntegrationTests
 
                 }
                 trans.Complete();
-            }           
+            }
 
             using (var secondConn = new SqlConnection(_dataAccess.ConnectionString))
             {
@@ -1963,7 +1963,7 @@ namespace SqlBulkTools.IntegrationTests
 
         [Fact]
         public void SqlBulkTools_BulkInsertOrUpdate_TestDataTypes()
-        { 
+        {
             BulkDelete(_dataAccess.GetBookList());
 
             var todaysDate = DateTime.Today;

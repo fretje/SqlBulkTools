@@ -88,9 +88,8 @@ namespace SqlBulkTools.QueryOperations
 
             if (_identityColumn == null)
             {
-                string actualPropertyName;
 
-                if (_customColumnMappings.TryGetValue(propertyName, out actualPropertyName))
+                if (_customColumnMappings.TryGetValue(propertyName, out string actualPropertyName))
                     _identityColumn = actualPropertyName;
                 else
                     _identityColumn = propertyName;
