@@ -4,22 +4,16 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryForObject<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="entity"></param>
+/// <param name="sqlParams"></param>
+public class QueryForObject<T>(T entity, List<SqlParameter> sqlParams)
 {
-    private readonly T _entity;
-    private readonly List<SqlParameter> _sqlParams;
+    private readonly T _entity = entity;
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
     private Dictionary<string, Type> _propTypes;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="entity"></param>
-    /// <param name="sqlParams"></param>
-    public QueryForObject(T entity, List<SqlParameter> sqlParams)
-    {
-        _entity = entity;
-        _sqlParams = sqlParams;
-    }
 
     /// <summary>
     /// Supply the property types when your source is a Dictionary[string, object]

@@ -4,19 +4,14 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SetupDataTable<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="ext"></param>
+public class SetupDataTable<T>(DataTableOperations ext)
 {
-    private readonly DataTableOperations _ext;
+    private readonly DataTableOperations _ext = ext;
     private Dictionary<string, Type> _propTypes;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="ext"></param>
-    public SetupDataTable(DataTableOperations ext)
-    {
-        _ext = ext;
-    }
 
     /// <summary>
     /// 

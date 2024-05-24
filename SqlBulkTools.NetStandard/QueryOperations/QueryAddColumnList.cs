@@ -4,36 +4,25 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryAddColumnList<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="tableName"></param>
+/// <param name="columns"></param>
+/// <param name="schema"></param>
+/// <param name="sqlParams"></param>
+/// <param name="propertyInfoList"></param>
+public class QueryAddColumnList<T>(T singleEntity, string tableName, HashSet<string> columns, string schema,
+    List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
 {
-    private readonly T _singleEntity;
-    private readonly string _tableName;
-    private Dictionary<string, string> CustomColumnMappings { get; }
-    private readonly HashSet<string> _columns;
-    private readonly string _schema;
-    private readonly List<SqlParameter> _sqlParams;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="tableName"></param>
-    /// <param name="columns"></param>
-    /// <param name="schema"></param>
-    /// <param name="sqlParams"></param>
-    /// <param name="propertyInfoList"></param>
-    public QueryAddColumnList(T singleEntity, string tableName, HashSet<string> columns, string schema,
-        List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
-    {
-        _singleEntity = singleEntity;
-        _tableName = tableName;
-        _columns = columns;
-        _schema = schema;
-        CustomColumnMappings = new Dictionary<string, string>();
-        _sqlParams = sqlParams;
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly T _singleEntity = singleEntity;
+    private readonly string _tableName = tableName;
+    private Dictionary<string, string> CustomColumnMappings { get; } = [];
+    private readonly HashSet<string> _columns = columns;
+    private readonly string _schema = schema;
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// 
@@ -74,13 +63,12 @@ public class QueryAddColumnList<T>
     public QueryAddColumnList<T> RemoveColumn(Expression<Func<T, object>> columnName)
     {
         var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-        if (_columns.Contains(propertyName))
-            _columns.Remove(propertyName);
-
-        else
+        if (!_columns.Remove(propertyName))
+        {
             throw new SqlBulkToolsException("Could not remove the column with name "
                 + columnName +
                 ". This could be because it's not a value or string type and therefore not included.");
+        }
 
         return this;
     }

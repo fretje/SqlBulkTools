@@ -117,7 +117,7 @@ public class BulkOperationsTests
         var joinOnList = new List<string> { "MarketPlaceId", "FK_BusinessId", "AddressId" };
 
         // Act
-        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(joinOnList.ToArray(), "Source", "Target", new Dictionary<string, string>(), new Dictionary<string, bool>());
+        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. joinOnList], "Source", "Target", [], []);
 
         // Assert
         Assert.Equal("ON ([Target].[MarketPlaceId] = [Source].[MarketPlaceId]) AND ([Target].[FK_BusinessId] = [Source].[FK_BusinessId]) AND ([Target].[AddressId] = [Source].[AddressId]) ", result);
@@ -130,7 +130,7 @@ public class BulkOperationsTests
         var joinOnList = new List<string> { "MarketPlaceId", "FK_BusinessId" };
 
         // Act
-        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(joinOnList.ToArray(), "Source", "Target", new Dictionary<string, string> { { "FK_BusinessId", "DEFAULT_COLLATION" } }, new Dictionary<string, bool>());
+        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. joinOnList], "Source", "Target", new Dictionary<string, string> { { "FK_BusinessId", "DEFAULT_COLLATION" } }, []);
 
         // Assert
         Assert.Equal("ON ([Target].[MarketPlaceId] = [Source].[MarketPlaceId]) AND ([Target].[FK_BusinessId] = [Source].[FK_BusinessId] COLLATE DEFAULT_COLLATION) ", result);
@@ -143,7 +143,7 @@ public class BulkOperationsTests
         var joinOnList = new List<string> { "MarketPlaceId" };
 
         // Act
-        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(joinOnList.ToArray(), "Source", "Target", new Dictionary<string, string>(), new Dictionary<string, bool>());
+        var result = BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. joinOnList], "Source", "Target", [], []);
 
         // Assert
         Assert.Equal("ON ([Target].[MarketPlaceId] = [Source].[MarketPlaceId]) ", result);
@@ -261,7 +261,7 @@ public class BulkOperationsTests
         var result = BulkOperationsHelper.GetAllValueTypeAndStringColumns(propertyInfoList);
 
         // Assert
-        Assert.Equal(expected.ToList(), result.ToList());
+        Assert.Equal(expected.ToList(), [.. result]);
     }
 
     [Fact]
@@ -278,7 +278,7 @@ public class BulkOperationsTests
             "SearchVolume" };
         var propertyInfoList = typeof(ComplexTypeModel).ToPropInfoList();
 
-        var result = BulkOperationsHelper.CreateDataTable<ComplexTypeModel>(propertyInfoList, columns, null, new Dictionary<string, int>());
+        var result = BulkOperationsHelper.CreateDataTable<ComplexTypeModel>(propertyInfoList, columns, null, []);
 
         Assert.Equal(typeof(double), result.Columns["AverageEstimate_TotalCost"].DataType);
         Assert.Equal(typeof(DateTime), result.Columns["AverageEstimate_CreationDate"].DataType);
@@ -301,7 +301,7 @@ public class BulkOperationsTests
         var result = BulkOperationsHelper.GetAllValueTypeAndStringColumns(propertyInfoList);
 
         // Assert
-        Assert.Equal(expected.ToList(), result.ToList());
+        Assert.Equal(expected.ToList(), [.. result]);
     }
   
 
@@ -356,8 +356,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.LessThan,
                 LeftName = "Price",
                 Value = "50",
@@ -369,7 +368,7 @@ public class BulkOperationsTests
         var expected = "AND [Target].[Price] < @PriceCondition1 ";
 
         // Act
-        var result = BulkOperationsHelper.BuildPredicateQuery(updateOn, conditions, targetAlias, new Dictionary<string, string>());
+        var result = BulkOperationsHelper.BuildPredicateQuery(updateOn, conditions, targetAlias, []);
 
         // Assert
         Assert.Equal(expected, result);
@@ -383,8 +382,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.Equal,
                 LeftName = "Description",
                 Value = "null",
@@ -408,8 +406,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.NotEqual,
                 LeftName = "Description",
                 Value = "null",
@@ -433,8 +430,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.LessThan,
                 LeftName = "Description",
                 Value = "null",
@@ -459,8 +455,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.LessThanOrEqual,
                 LeftName = "Description",
                 Value = "null",
@@ -485,8 +480,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.GreaterThan,
                 LeftName = "Description",
                 Value = "null",
@@ -511,8 +505,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.GreaterThanOrEqual,
                 LeftName = "Description",
                 Value = "null",
@@ -537,8 +530,7 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.GreaterThanOrEqual,
                 LeftName = "Description",
                 Value = "null",
@@ -564,15 +556,13 @@ public class BulkOperationsTests
         var updateOn = new[] { "stub" };
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.NotEqual,
                 LeftName = "Description",
                 Value = "null",
                 SortOrder = 1
             },
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.GreaterThanOrEqual,
                 LeftName = "Price",
                 Value = "50",
@@ -599,15 +589,13 @@ public class BulkOperationsTests
 
         var conditions = new List<PredicateCondition>
         {
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.NotEqual,
                 LeftName = "Description",
                 Value = "null",
                 SortOrder = 1
             },
-            new PredicateCondition
-            {
+            new() {
                 Expression = ExpressionType.GreaterThanOrEqual,
                 LeftName = "Price",
                 Value = "50",
@@ -709,7 +697,7 @@ public class BulkOperationsTests
         var columns = GetTestColumns();
 
         // ACt
-        var result = BulkOperationsHelper.BuildMatchTargetOnList(columns, null, new Dictionary<string, string>());
+        var result = BulkOperationsHelper.BuildMatchTargetOnList(columns, null, []);
 
         // Assert
         Assert.Equal("WHERE [id] = @id AND [Name] = @Name AND [Town] = @Town AND [Email] = @Email AND [IsCool] = @IsCool", result);
@@ -722,7 +710,7 @@ public class BulkOperationsTests
         var columns = new HashSet<string> { "id" };
 
         // ACt
-        var result = BulkOperationsHelper.BuildMatchTargetOnList(columns, new Dictionary<string, string> { { "id", "DEFAULT_COLLATION" } }, new Dictionary<string, string>());
+        var result = BulkOperationsHelper.BuildMatchTargetOnList(columns, new Dictionary<string, string> { { "id", "DEFAULT_COLLATION" } }, []);
 
         // Assert
         Assert.Equal("WHERE [id] = @id COLLATE DEFAULT_COLLATION", result);

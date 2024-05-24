@@ -4,23 +4,16 @@
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DeleteAllRecordsQueryReady<T> : ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+public class DeleteAllRecordsQueryReady<T>(string tableName, string schema) : ITransaction
 {
-    private readonly string _tableName;
-    private readonly string _schema;
-    private int? _batchQuantity;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    public DeleteAllRecordsQueryReady(string tableName, string schema)
-    {
-        _tableName = tableName;
-        _schema = schema;
-        _batchQuantity = null;
-    }
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private int? _batchQuantity = null;
 
     /// <summary>
     /// The maximum number of records to delete per transaction.
@@ -44,7 +37,9 @@ public class DeleteAllRecordsQueryReady<T> : ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -61,7 +56,9 @@ public class DeleteAllRecordsQueryReady<T> : ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -76,7 +73,9 @@ public class DeleteAllRecordsQueryReady<T> : ITransaction
     public int Commit(SqlConnection connection, SqlTransaction transaction)
     {
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;
@@ -100,7 +99,9 @@ public class DeleteAllRecordsQueryReady<T> : ITransaction
     public async Task<int> CommitAsync(SqlConnection connection, SqlTransaction transaction, CancellationToken cancellationToken)
     {
         if (connection.State == ConnectionState.Closed)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;

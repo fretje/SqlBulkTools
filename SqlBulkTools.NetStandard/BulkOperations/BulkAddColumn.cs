@@ -4,23 +4,19 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class BulkAddColumn<T> : AbstractColumnSelection<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="bulk"></param>
+/// <param name="list"></param>
+/// <param name="tableName"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="schema"></param>
+/// <param name="bulkCopySettings"></param>
+/// <param name="propertyInfoList"></param>
+public class BulkAddColumn<T>(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings, string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) : AbstractColumnSelection<T>(bulk, list, tableName, columns, customColumnMappings, schema, bulkCopySettings, propertyInfoList)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="bulk"></param>
-    /// <param name="list"></param>
-    /// <param name="tableName"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="schema"></param>
-    /// <param name="bulkCopySettings"></param>
-    /// <param name="propertyInfoList"></param>
-    public BulkAddColumn(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings, string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) :
-        base(bulk, list, tableName, columns, customColumnMappings, schema, bulkCopySettings, propertyInfoList)
-    {
-    }
 
     /// <summary>
     /// Add each column that you want to include in the query. Only include the columns that are relevant to the 
@@ -54,7 +50,10 @@ public class BulkAddColumn<T> : AbstractColumnSelection<T>
     public BulkAddColumn<T> AddColumns(params string[] columnNames)
     {
         foreach (var column in columnNames)
+        {
             AddColumn(column);
+        }
+
         return this;
     }
 
@@ -67,7 +66,10 @@ public class BulkAddColumn<T> : AbstractColumnSelection<T>
     public BulkAddColumn<T> AddColumns(params Expression<Func<T, object>>[] columnNames)
     {
         foreach (var column in columnNames)
+        {
             AddColumn(column);
+        }
+
         return this;
     }
 
@@ -83,7 +85,9 @@ public class BulkAddColumn<T> : AbstractColumnSelection<T>
     public BulkAddColumn<T> AddColumn(string columnName, string destination)
     {
         if (destination == null)
+        {
             throw new ArgumentNullException(nameof(destination));
+        }
 
         CustomColumnMappings.Add(columnName, destination);
 

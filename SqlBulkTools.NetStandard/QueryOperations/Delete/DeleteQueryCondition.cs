@@ -4,32 +4,21 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DeleteQueryCondition<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="sqlTimeout"></param>
+public class DeleteQueryCondition<T>(string tableName, string schema, int sqlTimeout)
 {
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly List<PredicateCondition> _whereConditions;
-    private readonly List<SqlParameter> _parameters;
-    private int _conditionSortOrder;
-    private readonly Dictionary<string, string> _collationColumnDic;
-    private readonly Dictionary<string, string> _customColumnMappings;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="sqlTimeout"></param>
-    public DeleteQueryCondition(string tableName, string schema, int sqlTimeout)
-    {
-        _tableName = tableName;
-        _schema = schema;
-        _whereConditions = new List<PredicateCondition>();
-        _parameters = new List<SqlParameter>();
-        _collationColumnDic = new Dictionary<string, string>();
-        _customColumnMappings = new Dictionary<string, string>();
-        _conditionSortOrder = 1;
-    }
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly List<PredicateCondition> _whereConditions = [];
+    private readonly List<SqlParameter> _parameters = [];
+    private int _conditionSortOrder = 1;
+    private readonly Dictionary<string, string> _collationColumnDic = [];
+    private readonly Dictionary<string, string> _customColumnMappings = [];
 
     /// <summary>
     /// By default SqlBulkTools will attempt to match the model property names to SQL column names (case insensitive). 

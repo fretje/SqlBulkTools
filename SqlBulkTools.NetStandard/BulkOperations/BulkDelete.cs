@@ -21,13 +21,12 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
     /// <param name="propertyInfoList"></param>
     public BulkDelete(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
         Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList)
-        :
-        base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
+        : base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
     {
-        _deletePredicates = new List<PredicateCondition>();
-        _parameters = new List<SqlParameter>();
+        _deletePredicates = [];
+        _parameters = [];
         _conditionSortOrder = 1;
-        _nullableColumnDic = new Dictionary<string, bool>();
+        _nullableColumnDic = [];
     }
 
     /// <summary>
@@ -40,7 +39,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
     public BulkDelete<T> MatchTargetOn(string columnName)
     {
         if (string.IsNullOrWhiteSpace(columnName))
+        {
             throw new ArgumentNullException(nameof(columnName));
+        }
 
         _matchTargetOn.Add(columnName);
 
@@ -183,7 +184,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -200,7 +203,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -230,7 +235,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _deletePredicates);
 
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -262,7 +269,7 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
 
         if (_parameters.Count > 0)
         {
-            command.Parameters.AddRange(_parameters.ToArray());
+            command.Parameters.AddRange([.. _parameters]);
         }
 
         affectedRecords = command.ExecuteNonQuery();
@@ -306,7 +313,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _deletePredicates);
 
         if (connection.State != ConnectionState.Open)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -338,7 +347,7 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
 
         if (_parameters.Count > 0)
         {
-            command.Parameters.AddRange(_parameters.ToArray());
+            command.Parameters.AddRange([.. _parameters]);
         }
 
         affectedRecords = command.ExecuteNonQuery();
@@ -354,9 +363,9 @@ public class BulkDelete<T> : AbstractOperation<T>, ITransaction
     private string GetCommand(SqlConnection connection) =>
         "MERGE INTO " + BulkOperationsHelper.GetFullQualifyingTableName(connection.Database, _schema, _tableName) + $" WITH ({_tableHint}) AS Target " +
         "USING " + Constants.TempTableName + " AS Source " +
-        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(_matchTargetOn.ToArray(),
+        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. _matchTargetOn],
         Constants.SourceAlias, Constants.TargetAlias, _collationColumnDic, _nullableColumnDic) +
-        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery(_matchTargetOn.ToArray(), _deletePredicates, Constants.TargetAlias, _collationColumnDic) +
+        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery([.. _matchTargetOn], _deletePredicates, Constants.TargetAlias, _collationColumnDic) +
         "THEN DELETE " +
         BulkOperationsHelper.GetOutputIdentityCmd(_identityColumn, _outputIdentity, Constants.TempOutputTableName,
         OperationType.Delete) + "; " +

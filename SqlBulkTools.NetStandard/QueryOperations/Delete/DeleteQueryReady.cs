@@ -4,43 +4,29 @@
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DeleteQueryReady<T> : ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="conditionSortOrder"></param>
+/// <param name="whereConditions"></param>
+/// <param name="parameters"></param>
+/// <param name="collationColumnDic"></param>
+/// <param name="customColumnMappings"></param>
+public class DeleteQueryReady<T>(string tableName, string schema, int conditionSortOrder, List<PredicateCondition> whereConditions,
+    List<SqlParameter> parameters, Dictionary<string, string> collationColumnDic, Dictionary<string, string> customColumnMappings) : ITransaction
 {
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly List<PredicateCondition> _whereConditions;
-    private readonly List<PredicateCondition> _andConditions;
-    private readonly List<PredicateCondition> _orConditions;
-    private readonly List<SqlParameter> _parameters;
-    private int _conditionSortOrder;
-    private readonly Dictionary<string, string> _collationColumnDic;
-    private readonly Dictionary<string, string> _customColumnMappings;
-    private int? _batchQuantity;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="conditionSortOrder"></param>
-    /// <param name="whereConditions"></param>
-    /// <param name="parameters"></param>
-    /// <param name="collationColumnDic"></param>
-    /// <param name="customColumnMappings"></param>
-    public DeleteQueryReady(string tableName, string schema, int conditionSortOrder, List<PredicateCondition> whereConditions,
-        List<SqlParameter> parameters, Dictionary<string, string> collationColumnDic, Dictionary<string, string> customColumnMappings)
-    {
-        _tableName = tableName;
-        _schema = schema;
-        _whereConditions = whereConditions;
-        _andConditions = new List<PredicateCondition>();
-        _orConditions = new List<PredicateCondition>();
-        _conditionSortOrder = conditionSortOrder;
-        _parameters = parameters;
-        _collationColumnDic = collationColumnDic;
-        _customColumnMappings = customColumnMappings;
-        _batchQuantity = null;
-    }
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly List<PredicateCondition> _whereConditions = whereConditions;
+    private readonly List<PredicateCondition> _andConditions = [];
+    private readonly List<PredicateCondition> _orConditions = [];
+    private readonly List<SqlParameter> _parameters = parameters;
+    private int _conditionSortOrder = conditionSortOrder;
+    private readonly Dictionary<string, string> _collationColumnDic = collationColumnDic;
+    private readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
+    private int? _batchQuantity = null;
 
     /// <summary>
     /// Specify an additional condition to match on.
@@ -128,7 +114,9 @@ public class DeleteQueryReady<T> : ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -145,7 +133,9 @@ public class DeleteQueryReady<T> : ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -160,7 +150,9 @@ public class DeleteQueryReady<T> : ITransaction
     public int Commit(SqlConnection connection, SqlTransaction transaction)
     {
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;
@@ -170,7 +162,7 @@ public class DeleteQueryReady<T> : ITransaction
 
         if (_parameters.Count > 0)
         {
-            command.Parameters.AddRange(_parameters.ToArray());
+            command.Parameters.AddRange([.. _parameters]);
         }
 
         int affectedRows = command.ExecuteNonQuery();
@@ -189,7 +181,9 @@ public class DeleteQueryReady<T> : ITransaction
     public async Task<int> CommitAsync(SqlConnection connection, SqlTransaction transaction, CancellationToken cancellationToken)
     {
         if (connection.State == ConnectionState.Closed)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;
@@ -199,7 +193,7 @@ public class DeleteQueryReady<T> : ITransaction
 
         if (_parameters.Count > 0)
         {
-            command.Parameters.AddRange(_parameters.ToArray());
+            command.Parameters.AddRange([.. _parameters]);
         }
 
         int affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);

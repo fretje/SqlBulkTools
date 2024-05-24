@@ -4,24 +4,20 @@
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class BulkInsert<T> : AbstractOperation<T>, ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="bulk"></param>
+/// <param name="list"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="bulkCopySettings"></param>
+/// <param name="propertyInfoList"></param>
+public class BulkInsert<T>(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
+    Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) : AbstractOperation<T>(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList), ITransaction
 {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="bulk"></param>
-    /// <param name="list"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="bulkCopySettings"></param>
-    /// <param name="propertyInfoList"></param>
-    public BulkInsert(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
-        Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) :
-
-        base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
-    { }
 
     /// <summary>
     /// Sets the identity column for the table. Required if an Identity column exists in table and one of the two
@@ -95,7 +91,9 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -112,7 +110,9 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -151,11 +151,15 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _columns, _matchTargetOn);
 
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         DataTable dtCols = null;
         if (_outputIdentity == ColumnDirectionType.InputOutput)
+        {
             dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
+        }
 
         //Bulk insert into temp table
         using var bulkcopy = new SqlBulkCopy(connection, _bulkCopySettings.SqlBulkCopyOptions, transaction);
@@ -191,7 +195,9 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
             BulkOperationsHelper.LoadFromTmpOutputTable(command, _propertyInfoList, _identityColumn, _outputIdentityDic, OperationType.Insert, _list);
         }
         else
+        {
             bulkcopy.WriteToServer(dt);
+        }
 
         if (_disableAllIndexes)
         {
@@ -230,11 +236,15 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _columns, _matchTargetOn);
 
         if (connection.State != ConnectionState.Open)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         DataTable dtCols = null;
         if (_outputIdentity == ColumnDirectionType.InputOutput)
+        {
             dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
+        }
 
         using var bulkcopy = new SqlBulkCopy(connection, _bulkCopySettings.SqlBulkCopyOptions, transaction);
         bulkcopy.DestinationTableName = BulkOperationsHelper.GetFullQualifyingTableName(connection.Database, _schema, _tableName);
@@ -269,7 +279,9 @@ public class BulkInsert<T> : AbstractOperation<T>, ITransaction
             await BulkOperationsHelper.LoadFromTmpOutputTableAsync(command, _propertyInfoList, _identityColumn, _outputIdentityDic, OperationType.Insert, _list, cancellationToken).ConfigureAwait(false);
         }
         else
+        {
             await bulkcopy.WriteToServerAsync(dt, cancellationToken).ConfigureAwait(false);
+        }
 
         if (_disableAllIndexes)
         {

@@ -24,10 +24,10 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
         :
         base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
     {
-        _updatePredicates = new List<PredicateCondition>();
-        _parameters = new List<SqlParameter>();
+        _updatePredicates = [];
+        _parameters = [];
         _conditionSortOrder = 1;
-        _nullableColumnDic = new Dictionary<string, bool>();
+        _nullableColumnDic = [];
     }
 
     /// <summary>
@@ -55,7 +55,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
     public BulkUpdate<T> MatchTargetOn(string columnName)
     {
         if (string.IsNullOrWhiteSpace(columnName))
+        {
             throw new ArgumentNullException(nameof(columnName));
+        }
 
         _matchTargetOn.Add(columnName);
 
@@ -173,7 +175,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -190,7 +194,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -221,7 +227,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _updatePredicates);
 
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -256,7 +264,7 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
 
             if (_parameters.Count > 0)
             {
-                command.Parameters.AddRange(_parameters.ToArray());
+                command.Parameters.AddRange([.. _parameters]);
             }
 
             affectedRows = command.ExecuteNonQuery();
@@ -310,7 +318,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _updatePredicates);
 
         if (connection.State == ConnectionState.Closed)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -345,7 +355,7 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
 
             if (_parameters.Count > 0)
             {
-                command.Parameters.AddRange(_parameters.ToArray());
+                command.Parameters.AddRange([.. _parameters]);
             }
 
             affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -375,9 +385,9 @@ public class BulkUpdate<T> : AbstractOperation<T>, ITransaction
     private string GetCommand(SqlConnection connection) =>
         "MERGE INTO " + BulkOperationsHelper.GetFullQualifyingTableName(connection.Database, _schema, _tableName) + $" WITH ({_tableHint}) AS Target " +
         "USING " + Constants.TempTableName + " AS Source " +
-        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(_matchTargetOn.ToArray(),
+        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. _matchTargetOn],
             Constants.SourceAlias, Constants.TargetAlias, _collationColumnDic, _nullableColumnDic) +
-        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery(_matchTargetOn.ToArray(), _updatePredicates, Constants.TargetAlias, _collationColumnDic) +
+        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery([.. _matchTargetOn], _updatePredicates, Constants.TargetAlias, _collationColumnDic) +
         "THEN UPDATE " +
         BulkOperationsHelper.BuildUpdateSet(_columns, Constants.SourceAlias, Constants.TargetAlias, _identityColumn) +
         BulkOperationsHelper.GetOutputIdentityCmd(_identityColumn, _outputIdentity, Constants.TempOutputTableName,

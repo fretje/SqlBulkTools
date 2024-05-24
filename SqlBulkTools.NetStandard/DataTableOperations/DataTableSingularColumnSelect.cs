@@ -4,24 +4,18 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DataTableSingularColumnSelect<T> : DataTableAbstractColumnSelect<T>, IDataTableTransaction
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="ext"></param>
+/// <param name="list"></param>
+/// <param name="columns"></param>
+/// <param name="ordinalDic"></param>
+/// <param name="propertyInfoList"></param>
+public class DataTableSingularColumnSelect<T>(DataTableOperations ext, IEnumerable<T> list, HashSet<string> columns, Dictionary<string, int> ordinalDic, List<PropInfo> propertyInfoList) : DataTableAbstractColumnSelect<T>(ext, list, columns), IDataTableTransaction
 {
-    private readonly Dictionary<string, int> _ordinalDic;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="ext"></param>
-    /// <param name="list"></param>
-    /// <param name="columns"></param>
-    /// <param name="ordinalDic"></param>
-    /// <param name="propertyInfoList"></param>
-    public DataTableSingularColumnSelect(DataTableOperations ext, IEnumerable<T> list, HashSet<string> columns, Dictionary<string, int> ordinalDic, List<PropInfo> propertyInfoList) : base(ext, list, columns)
-    {
-        _ordinalDic = ordinalDic;
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly Dictionary<string, int> _ordinalDic = ordinalDic;
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// Add each column that you want to include in the query. Only include the columns that are relevant to the 

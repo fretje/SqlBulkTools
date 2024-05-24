@@ -4,26 +4,19 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DataTableAllColumnSelect<T> : DataTableAbstractColumnSelect<T>, IDataTableTransaction
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="ext"></param>
+/// <param name="list"></param>
+/// <param name="columns"></param>
+/// <param name="ordinalDic"></param>
+/// <param name="propertyInfoList"></param>
+public class DataTableAllColumnSelect<T>(DataTableOperations ext, IEnumerable<T> list, HashSet<string> columns, Dictionary<string, int> ordinalDic, List<PropInfo> propertyInfoList) : DataTableAbstractColumnSelect<T>(ext, list, columns), IDataTableTransaction
 {
-    private readonly HashSet<string> _removedColumns;
-    private readonly Dictionary<string, int> _ordinalDic;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="ext"></param>
-    /// <param name="list"></param>
-    /// <param name="columns"></param>
-    /// <param name="ordinalDic"></param>
-    /// <param name="propertyInfoList"></param>
-    public DataTableAllColumnSelect(DataTableOperations ext, IEnumerable<T> list, HashSet<string> columns, Dictionary<string, int> ordinalDic, List<PropInfo> propertyInfoList) : base(ext, list, columns)
-    {
-        _removedColumns = new HashSet<string>();
-        _ordinalDic = ordinalDic;
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly HashSet<string> _removedColumns = [];
+    private readonly Dictionary<string, int> _ordinalDic = ordinalDic;
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// If a column name in your model does not match the designated column name in the actual SQL table, 
@@ -53,10 +46,12 @@ public class DataTableAllColumnSelect<T> : DataTableAbstractColumnSelect<T>, IDa
         }
             
 
-        else           
+        else
+        {
             throw new SqlBulkToolsException("Could not remove the column with name " 
                 + columnName +  
                 ". This could be because it's not a value or string type and therefore not included.");
+        }
 
         return this;
     }

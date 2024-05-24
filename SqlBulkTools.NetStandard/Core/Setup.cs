@@ -5,17 +5,13 @@ namespace SqlBulkTools;
 /// <summary>
 /// 
 /// </summary>
-public class Setup
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="ext"></param>
+public class Setup(BulkOperations ext)
 {
-    private readonly BulkOperations _ext; 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="ext"></param>
-    public Setup(BulkOperations ext)
-    {
-        _ext = ext;
-    }
+    private readonly BulkOperations _ext = ext;
 
     /// <summary>
     /// Represents the collection of objects to be inserted/upserted/updated/deleted (configured in next steps). 
@@ -33,20 +29,15 @@ public class Setup
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Setup<T> where T : class
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="ext"></param>
+public class Setup<T>(BulkOperations ext) where T : class
 {
-    private readonly BulkOperations _ext;
+    private readonly BulkOperations _ext = ext;
 
-    private readonly List<SqlParameter> _sqlParams;
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="ext"></param>
-    public Setup(BulkOperations ext)
-    {
-        _ext = ext;
-        _sqlParams = new List<SqlParameter>();
-    }
+    private readonly List<SqlParameter> _sqlParams = [];
 
     ///// <summary>
     ///// Use this option for simple updates or deletes where you are only dealing with a single table 

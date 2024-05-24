@@ -277,8 +277,7 @@ public class BulkOperationsIt
         const int rows = 1000;
 
         BulkDelete(_dataAccess.GetBookList());
-        _bookCollection = new List<Book>();
-        _bookCollection.AddRange(BookRandomizer.GetRandomCollection(rows));
+        _bookCollection = [.. BookRandomizer.GetRandomCollection(rows)];
         var results = new List<long>();
 
         Trace.WriteLine("Testing BulkInsert with " + rows + " rows");
@@ -674,7 +673,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.True(_dataAccess.GetSchemaTest2List().Any());
+        Assert.True(_dataAccess.GetSchemaTest2List().Count != 0);
     }
 
     [Fact]
@@ -714,7 +713,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.True(_dataAccess.GetSchemaTest2List().Any());
+        Assert.True(_dataAccess.GetSchemaTest2List().Count != 0);
 
     }
 
@@ -730,7 +729,7 @@ public class BulkOperationsIt
         {
             Assert.Throws<SqlBulkToolsException>(() =>
                 bulk.Setup<SchemaTest2>()
-                    .ForCollection(new List<SchemaTest2>())
+                    .ForCollection([])
                     .WithTable("SchemaTest.AnotherSchema.TooManyPeriods")
                     .AddColumn(x => x.ColumnA)
                     .BulkDelete()
@@ -753,7 +752,7 @@ public class BulkOperationsIt
         {
             Assert.Throws<SqlBulkToolsException>(() =>
                 bulk.Setup<SchemaTest2>()
-                    .ForCollection(new List<SchemaTest2>())
+                    .ForCollection([])
                     .WithTable("SchemaTest.AnotherSchema")
                     .WithSchema("YetAnotherSchema")
                     .AddColumn(x => x.ColumnA)
@@ -808,7 +807,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.False(_dataAccess.GetSchemaTest1List().Any());
+        Assert.False(_dataAccess.GetSchemaTest1List().Count != 0);
     }
 
     [Fact]
@@ -890,7 +889,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.True(_dataAccess.GetCustomColumnMappingTests().Any());
+        Assert.True(_dataAccess.GetCustomColumnMappingTests().Count != 0);
     }
 
     [Fact]
@@ -934,7 +933,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.True(_dataAccess.GetCustomColumnMappingTests().Any());
+        Assert.True(_dataAccess.GetCustomColumnMappingTests().Count != 0);
     }
 
     [Fact]
@@ -976,7 +975,7 @@ public class BulkOperationsIt
         }
 
         // Assert
-        Assert.True(_dataAccess.GetCustomColumnMappingTests().Any());
+        Assert.True(_dataAccess.GetCustomColumnMappingTests().Count != 0);
     }
 
     [Fact]
@@ -1523,7 +1522,7 @@ public class BulkOperationsIt
             trans.Complete();
         }
 
-        Assert.True(_dataAccess.GetBookList().Any());
+        Assert.True(_dataAccess.GetBookList().Count != 0);
     }
 
     [Fact]
@@ -2076,7 +2075,7 @@ public class BulkOperationsIt
         var bulk = new BulkOperations();
         var dataTypeTest = new List<TestDataType>()
         {
-            new TestDataType()
+            new()
             {
                 BigIntTest = 342324324324324324,
                 TinyIntTest = 126,
@@ -2085,8 +2084,8 @@ public class BulkOperationsIt
                 DateTest = new DateTime(2007, 7, 5, 20, 30, 10),
                 TimeTest = new TimeSpan(23, 32, 23),
                 SmallDateTimeTest = new DateTime(2005, 7, 14),
-                BinaryTest = new byte[] {0, 3, 3, 2, 4, 3},
-                VarBinaryTest = new byte[] {3, 23, 33, 243},
+                BinaryTest = [0, 3, 3, 2, 4, 3],
+                VarBinaryTest = [3, 23, 33, 243],
                 DecimalTest = 178.43M,
                 MoneyTest = 24333.99M,
                 SmallMoneyTest = 103.32M,
@@ -2099,7 +2098,7 @@ public class BulkOperationsIt
                 CharTest = "Some",
                 XmlTest = "<title>The best SQL Bulk tool</title>",
                 NCharTest = "SomeText",
-                ImageTest = new byte[] {3,3,32,4},
+                ImageTest = [3,3,32,4],
                 TestSqlGeometry = SqlGeometry.Point(-2.74612, 53.881238, 4326),
                 TestSqlGeography = SqlGeography.Point(-5, 43.432, 4326)
             }

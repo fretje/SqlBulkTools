@@ -6,22 +6,16 @@ namespace SqlBulkTools
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class BulkForCollection<T>
+    /// <remarks>
+    /// 
+    /// </remarks>
+    /// <param name="bulk"></param>
+    /// <param name="list"></param>
+    public class BulkForCollection<T>(BulkOperations bulk, IEnumerable<T> list)
     {
-        private readonly BulkOperations bulk;
-        private readonly IEnumerable<T> _list;
+        private readonly BulkOperations bulk = bulk;
+        private readonly IEnumerable<T> _list = list;
         private Dictionary<string, Type> _propTypes;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bulk"></param>
-        /// <param name="list"></param>
-        public BulkForCollection(BulkOperations bulk, IEnumerable<T> list)
-        {
-            this.bulk = bulk;
-            _list = list;
-        }
 
         /// <summary>
         /// 

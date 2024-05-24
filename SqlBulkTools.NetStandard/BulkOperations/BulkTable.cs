@@ -28,11 +28,11 @@ public class BulkTable<T>
         this.bulk = bulk;
         _list = list;
         _schema = schema;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
+        Columns = [];
+        CustomColumnMappings = [];
         _tableName = tableName;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
+        Columns = [];
+        CustomColumnMappings = [];
         _bulkCopySettings = new BulkCopySettings();
         _propertyInfoList = PropInfoList.From<T>(propTypes);
     }
@@ -99,7 +99,9 @@ public class BulkTable<T>
     public BulkAddColumn<T> AddColumn(string columnName, string destination)
     {
         if (destination == null)
+        {
             throw new ArgumentNullException(nameof(destination));
+        }
 
         Columns.Add(columnName);
 
@@ -140,7 +142,9 @@ public class BulkTable<T>
     public BulkTable<T> WithSchema(string schema)
     {
         if (_schema != Constants.DefaultSchemaName)
+        {
             throw new SqlBulkToolsException("Schema has already been defined in WithTable method.");
+        }
 
         _schema = schema;
         return this;

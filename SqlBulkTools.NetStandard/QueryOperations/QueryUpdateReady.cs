@@ -4,54 +4,36 @@
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryUpdateReady<T> : ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="conditionSortOrder"></param>
+/// <param name="whereConditions"></param>
+/// <param name="sqlParams"></param>
+/// <param name="collationColumnDic"></param>
+/// <param name="propertyInfoList"></param>
+public class QueryUpdateReady<T>(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
+    int conditionSortOrder, List<PredicateCondition> whereConditions, List<SqlParameter> sqlParams, Dictionary<string, string> collationColumnDic, List<PropInfo> propertyInfoList) : ITransaction
 {
-    private readonly T _singleEntity;
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly HashSet<string> _columns;
-    private readonly Dictionary<string, string> _customColumnMappings;
-    private readonly List<PredicateCondition> _whereConditions;
-    private readonly List<PredicateCondition> _andConditions;
-    private readonly List<PredicateCondition> _orConditions;
-    private readonly List<SqlParameter> _sqlParams;
-    private int _conditionSortOrder;
-    private string _identityColumn;
-    private readonly Dictionary<string, string> _collationColumnDic;
-    private int? _batchQuantity;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="conditionSortOrder"></param>
-    /// <param name="whereConditions"></param>
-    /// <param name="sqlParams"></param>
-    /// <param name="collationColumnDic"></param>
-    /// <param name="propertyInfoList"></param>
-    public QueryUpdateReady(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
-        int conditionSortOrder, List<PredicateCondition> whereConditions, List<SqlParameter> sqlParams, Dictionary<string, string> collationColumnDic, List<PropInfo> propertyInfoList)
-    {
-        _singleEntity = singleEntity;
-        _tableName = tableName;
-        _schema = schema;
-        _columns = columns;
-        _customColumnMappings = customColumnMappings;
-        _conditionSortOrder = conditionSortOrder;
-        _whereConditions = whereConditions;
-        _andConditions = new List<PredicateCondition>();
-        _orConditions = new List<PredicateCondition>();
-        _sqlParams = sqlParams;
-        _identityColumn = null;
-        _collationColumnDic = collationColumnDic;
-        _batchQuantity = null;
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly T _singleEntity = singleEntity;
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly HashSet<string> _columns = columns;
+    private readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
+    private readonly List<PredicateCondition> _whereConditions = whereConditions;
+    private readonly List<PredicateCondition> _andConditions = [];
+    private readonly List<PredicateCondition> _orConditions = [];
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private int _conditionSortOrder = conditionSortOrder;
+    private string _identityColumn = null;
+    private readonly Dictionary<string, string> _collationColumnDic = collationColumnDic;
+    private int? _batchQuantity = null;
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// Sets the identity column for the table.
@@ -60,15 +42,15 @@ public class QueryUpdateReady<T> : ITransaction
     /// <returns></returns>
     public QueryUpdateReady<T> SetIdentityColumn(Expression<Func<T, object>> columnName)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
         if (_identityColumn == null)
+        {
             _identityColumn = BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName);
+        }
         else
+        {
             throw new SqlBulkToolsException("Can't have more than one identity column");
+        }
 
         return this;
     }
@@ -158,7 +140,9 @@ public class QueryUpdateReady<T> : ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -175,7 +159,9 @@ public class QueryUpdateReady<T> : ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -196,7 +182,9 @@ public class QueryUpdateReady<T> : ITransaction
         }
 
         if (connection.State == ConnectionState.Closed)
+        {
             connection.Open();
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;
@@ -206,7 +194,7 @@ public class QueryUpdateReady<T> : ITransaction
 
         if (_sqlParams.Count > 0)
         {
-            command.Parameters.AddRange(_sqlParams.ToArray());
+            command.Parameters.AddRange([.. _sqlParams]);
         }
 
         affectedRows = command.ExecuteNonQuery();
@@ -231,7 +219,9 @@ public class QueryUpdateReady<T> : ITransaction
         }
 
         if (connection.State == ConnectionState.Closed)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         SqlCommand command = connection.CreateCommand();
         command.Connection = connection;
@@ -241,7 +231,7 @@ public class QueryUpdateReady<T> : ITransaction
 
         if (_sqlParams.Count > 0)
         {
-            command.Parameters.AddRange(_sqlParams.ToArray());
+            command.Parameters.AddRange([.. _sqlParams]);
         }
 
         affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);

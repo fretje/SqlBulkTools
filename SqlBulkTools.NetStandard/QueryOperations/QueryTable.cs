@@ -4,36 +4,22 @@
 /// Configurable options for table. 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryTable<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="propTypes"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="sqlParams"></param>
+public class QueryTable<T>(T singleEntity, Dictionary<string, Type> propTypes, string tableName, string schema, List<SqlParameter> sqlParams)
 {
-    private readonly T _singleEntity;
-    private HashSet<string> Columns { get; set; }
-    private string _schema;
-    private readonly string _tableName;
-    private Dictionary<string, string> CustomColumnMappings { get; set; }
-    private readonly List<SqlParameter> _sqlParams;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="propTypes"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="sqlParams"></param>
-    public QueryTable(T singleEntity, Dictionary<string, Type> propTypes, string tableName, string schema, List<SqlParameter> sqlParams)
-    {
-        _singleEntity = singleEntity;
-        _schema = schema;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
-        _tableName = tableName;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
-        _sqlParams = sqlParams;
-        _propertyInfoList = PropInfoList.From<T>(propTypes);
-    }
+    private readonly T _singleEntity = singleEntity;
+    private HashSet<string> Columns { get; set; } = [];
+    private string _schema = schema;
+    private readonly string _tableName = tableName;
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private readonly List<PropInfo> _propertyInfoList = PropInfoList.From<T>(propTypes);
 
     /// <summary>
     /// Add each column that you want to include in the query.
@@ -66,7 +52,9 @@ public class QueryTable<T>
     public QueryTable<T> WithSchema(string schema)
     {
         if (_schema != Constants.DefaultSchemaName)
+        {
             throw new SqlBulkToolsException("Schema has already been defined in WithTable method.");
+        }
 
         _schema = schema;
         return this;

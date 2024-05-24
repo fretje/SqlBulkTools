@@ -7,7 +7,7 @@ namespace SqlBulkTools;
 /// </summary>
 public class BulkOperations : IBulkOperations
 {
-    private readonly Dictionary<SchemaKey, DataTable> schemaCache = new();
+    private readonly Dictionary<SchemaKey, DataTable> schemaCache = [];
 
     /// <summary>
     /// Each transaction requires a valid setup. Examples available at: https://github.com/gtaylor44/SqlBulkTools 
@@ -17,7 +17,9 @@ public class BulkOperations : IBulkOperations
     public Setup<T> Setup<T>() where T : class
     {
         if (typeof(T) == typeof(ExpandoObject))
+        {
             throw new ArgumentException("ExpandoObject is currently not supported.");
+        }
 
         return new Setup<T>(this);
     }
@@ -44,16 +46,23 @@ public class BulkOperations : IBulkOperations
     {
         var sk = new SchemaKey(conn.Database, schema, tableName);
         if (schemaCache.TryGetValue(sk, out var result))
+        {
             return result;
+        }
 
         if (conn.State != ConnectionState.Open)
+        {
             conn.Open();
+        }
 
         var dtCols = conn.GetSchema("Columns", sk.ToRestrictions());
 
         if (dtCols.Rows.Count == 0 && schema != null)
+        {
             throw new SqlBulkToolsException(
                 $"Table name '{tableName}' with schema name '{schema}' not found. Check your setup and try again.");
+        }
+
         if (dtCols.Rows.Count == 0)
         {
             throw new SqlBulkToolsException($"Table name '{tableName}' not found. Check your setup and try again.");
@@ -63,23 +72,17 @@ public class BulkOperations : IBulkOperations
         return dtCols;
     }
 
-    class SchemaKey
+    class SchemaKey(string database, string schema, string tableName)
     {
-        public readonly string Database, Schema, TableName;
-        public SchemaKey(string database, string schema, string tableName)
-        {
-            Database = database;
-            Schema = schema;
-            TableName = tableName;
-        }
+        public readonly string Database = database, Schema = schema, TableName = tableName;
 
-        public string[] ToRestrictions() => new string[4]
-        {
+        public string[] ToRestrictions() =>
+        [
             Database,
             Schema,
             TableName,
             null
-        };
+        ];
 
         public override int GetHashCode()
         {

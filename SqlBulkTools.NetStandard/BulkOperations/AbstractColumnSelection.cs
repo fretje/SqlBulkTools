@@ -3,44 +3,32 @@
 /// <summary>
 /// 
 /// </summary>
-public abstract class AbstractColumnSelection<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="bulk"></param>
+/// <param name="list"></param>
+/// <param name="tableName"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="schema"></param>
+/// <param name="bulkCopySettings"></param>
+/// <param name="propertyInfoList"></param>
+public abstract class AbstractColumnSelection<T>(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings, string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList)
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    protected readonly BulkOperations bulk;
+    protected readonly BulkOperations bulk = bulk;
     // ReSharper disable InconsistentNaming
-    protected IEnumerable<T> _list;
-    protected string _tableName;
-    protected string _schema;
-    protected Dictionary<string, string> CustomColumnMappings { get; }        
-    protected HashSet<string> _columns;
-    protected bool _disableAllIndexes;
-    protected BulkCopySettings _bulkCopySettings;
-    protected List<PropInfo> _propertyInfoList;
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member   
+    protected IEnumerable<T> _list = list;
+    protected string _tableName = tableName;
+    protected string _schema = schema;
+    protected Dictionary<string, string> CustomColumnMappings { get; } = customColumnMappings;
+    protected HashSet<string> _columns = columns;
+    protected bool _disableAllIndexes = false;
+    protected BulkCopySettings _bulkCopySettings = bulkCopySettings;
+    protected List<PropInfo> _propertyInfoList = propertyInfoList;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="bulk"></param>
-    /// <param name="list"></param>
-    /// <param name="tableName"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="schema"></param>
-    /// <param name="bulkCopySettings"></param>
-    /// <param name="propertyInfoList"></param>
-    protected AbstractColumnSelection(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings, string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList)
-    {
-        this.bulk = bulk;
-        _disableAllIndexes = false;
-        CustomColumnMappings = customColumnMappings;
-        _list = list;
-        _tableName = tableName;
-        _columns = columns;
-        _schema = schema;
-        _bulkCopySettings = bulkCopySettings;
-        _propertyInfoList = propertyInfoList;
-    }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member   
 
     /// <summary>
     /// A bulk insert will attempt to insert all records. If you have any unique constraints on columns, these must be respected. 

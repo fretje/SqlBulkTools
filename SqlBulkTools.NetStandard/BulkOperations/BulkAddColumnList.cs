@@ -4,25 +4,21 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class BulkAddColumnList<T> : AbstractColumnSelection<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="bulk"></param>
+/// <param name="list"></param>
+/// <param name="tableName"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="schema"></param>
+/// <param name="bulkCopySettings"></param>
+/// <param name="propertyInfoList"></param>
+public class BulkAddColumnList<T>(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
+    string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) 
+    : AbstractColumnSelection<T>(bulk, list, tableName, columns, customColumnMappings, schema, bulkCopySettings, propertyInfoList)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="bulk"></param>
-    /// <param name="list"></param>
-    /// <param name="tableName"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="schema"></param>
-    /// <param name="bulkCopySettings"></param>
-    /// <param name="propertyInfoList"></param>
-    public BulkAddColumnList(BulkOperations bulk, IEnumerable<T> list, string tableName, HashSet<string> columns, Dictionary<string, string> customColumnMappings, 
-        string schema, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) 
-        :
-        base(bulk, list, tableName, columns, customColumnMappings, schema, bulkCopySettings, propertyInfoList)
-    {
-    }
 
     /// <summary>
     /// By default SqlBulkTools will attempt to match the model property names to SQL column names (case insensitive). 
@@ -68,13 +64,12 @@ public class BulkAddColumnList<T> : AbstractColumnSelection<T>
     /// <exception cref="SqlBulkToolsException"></exception>
     public BulkAddColumnList<T> RemoveColumn(string columnName)
     {
-        if (_columns.Contains(columnName))
-            _columns.Remove(columnName);
-
-        else
+        if (!_columns.Remove(columnName))
+        {
             throw new SqlBulkToolsException("Could not remove the column with name "
                 + columnName +
                 ". This could be because it's not a value or string type and therefore not included.");
+        }
 
         return this;
     }

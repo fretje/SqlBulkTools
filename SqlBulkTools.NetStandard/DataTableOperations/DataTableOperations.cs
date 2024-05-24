@@ -72,14 +72,15 @@ public class DataTableOperations : IDataTableOperations
         {
 
             if (_customColumnMappings.TryGetValue(propertyName, out string customColumn))
+            {
                 return customColumn;
-
+            }
         }
 
         if (_columns.Contains(propertyName))
-            return propertyName;            
-
-
+        {
+            return propertyName;
+        }
 
         throw new SqlBulkToolsException("The property \'" + propertyName + "\' was not added during setup. Use AddColumn or AddColumns to add it and/or refer to documentation.");
     }
@@ -103,6 +104,8 @@ public class DataTableOperations : IDataTableOperations
     private void CheckRemovedColumns(string propertyName)
     {
         if (_removedColumns != null && _removedColumns.Contains(propertyName))
+        {
             throw new SqlBulkToolsException("The property \'" + propertyName + "\' has already been explicitly removed.");
+        }
     }
 }

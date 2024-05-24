@@ -6,46 +6,31 @@ namespace SqlBulkTools;
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryUpsertReady<T> : ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="sqlParams"></param>
+/// <param name="propertyInfoList"></param>
+public class QueryUpsertReady<T>(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
+    List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList) : ITransaction
 {
-    private readonly T _singleEntity;
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly HashSet<string> _columns;
-    private readonly Dictionary<string, string> _customColumnMappings;
+    private readonly T _singleEntity = singleEntity;
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly HashSet<string> _columns = columns;
+    private readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
     private string _identityColumn;
-    private readonly List<SqlParameter> _sqlParams;
-    private readonly HashSet<string> _matchTargetOn;
-    private readonly HashSet<string> _excludeFromUpdate;
-    private ColumnDirectionType _outputIdentity;
-    private readonly Dictionary<string, string> _collationColumnDic;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="sqlParams"></param>
-    /// <param name="propertyInfoList"></param>
-    public QueryUpsertReady(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
-        List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
-    {
-        _singleEntity = singleEntity;
-        _tableName = tableName;
-        _schema = schema;
-        _columns = columns;
-        _customColumnMappings = customColumnMappings;
-        _sqlParams = sqlParams;
-        _matchTargetOn = new HashSet<string>();
-        _outputIdentity = ColumnDirectionType.Input;
-        _excludeFromUpdate = new HashSet<string>();
-        _collationColumnDic = new Dictionary<string, string>();
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private readonly HashSet<string> _matchTargetOn = [];
+    private readonly HashSet<string> _excludeFromUpdate = [];
+    private ColumnDirectionType _outputIdentity = ColumnDirectionType.Input;
+    private readonly Dictionary<string, string> _collationColumnDic = [];
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// Sets the identity column for the table.
@@ -59,12 +44,18 @@ public class QueryUpsertReady<T> : ITransaction
         _outputIdentity = outputIdentity;
 
         if (propertyName == null)
+        {
             throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
+        }
 
         if (_identityColumn == null)
+        {
             _identityColumn = BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName);
+        }
         else
+        {
             throw new SqlBulkToolsException("Can't have more than one identity column");
+        }
 
         return this;
     }
@@ -76,11 +67,7 @@ public class QueryUpsertReady<T> : ITransaction
     /// <returns></returns>
     public QueryUpsertReady<T> ExcludeColumnFromUpdate(Expression<Func<T, object>> columnName)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new SqlBulkToolsException("ExcludeColumnFromUpdate column name can't be null");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new SqlBulkToolsException("ExcludeColumnFromUpdate column name can't be null");
         if (!_columns.Contains(propertyName))
         {
             throw new SqlBulkToolsException("ExcludeColumnFromUpdate could not exclude column from update because column could not " +
@@ -98,15 +85,15 @@ public class QueryUpsertReady<T> : ITransaction
     /// <returns></returns>
     public QueryUpsertReady<T> SetIdentityColumn(Expression<Func<T, object>> columnName)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
         if (_identityColumn == null)
+        {
             _identityColumn = BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName);
+        }
         else
+        {
             throw new SqlBulkToolsException("Can't have more than one identity column");
+        }
 
         return this;
     }
@@ -120,11 +107,7 @@ public class QueryUpsertReady<T> : ITransaction
     /// <returns></returns>
     public QueryUpsertReady<T> MatchTargetOn(Expression<Func<T, object>> columnName)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new NullReferenceException("MatchTargetOn column name can't be null.");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new NullReferenceException("MatchTargetOn column name can't be null.");
         _matchTargetOn.Add(propertyName);
 
         return this;
@@ -140,15 +123,13 @@ public class QueryUpsertReady<T> : ITransaction
     /// <returns></returns>
     public QueryUpsertReady<T> MatchTargetOn(Expression<Func<T, object>> columnName, string collation)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new NullReferenceException("MatchTargetOn column name can't be null.");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new NullReferenceException("MatchTargetOn column name can't be null.");
         _matchTargetOn.Add(propertyName);
 
         if (collation == null)
+        {
             throw new SqlBulkToolsException("Collation can't be null");
+        }
 
         _collationColumnDic.Add(BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName), collation);
 
@@ -166,7 +147,9 @@ public class QueryUpsertReady<T> : ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -183,7 +166,9 @@ public class QueryUpsertReady<T> : ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -206,12 +191,16 @@ public class QueryUpsertReady<T> : ITransaction
         }
 
         if (_matchTargetOn.Count == 0)
+        {
             throw new NullReferenceException("MatchTargetOn is a mandatory for upsert operation");
+        }
 
         try
         {
             if (conn.State == ConnectionState.Closed)
+            {
                 conn.Open();
+            }
 
             BulkOperationsHelper.AddSqlParamsForQuery(_propertyInfoList, _sqlParams, _columns, _singleEntity, _identityColumn, _outputIdentity, _customColumnMappings);
             BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _columns);
@@ -226,7 +215,7 @@ public class QueryUpsertReady<T> : ITransaction
 
             if (_sqlParams.Count > 0)
             {
-                command.Parameters.AddRange(_sqlParams.ToArray());
+                command.Parameters.AddRange([.. _sqlParams]);
             }
 
             affectedRows = command.ExecuteNonQuery();
@@ -286,7 +275,9 @@ public class QueryUpsertReady<T> : ITransaction
         }
 
         if (_matchTargetOn.Count == 0)
+        {
             throw new NullReferenceException("MatchTargetOn is a mandatory for upsert operation");
+        }
 
         try
         {
@@ -294,7 +285,9 @@ public class QueryUpsertReady<T> : ITransaction
             BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _columns);
 
             if (conn.State == ConnectionState.Closed)
+            {
                 await conn.OpenAsync(cancellationToken).ConfigureAwait(false);
+            }
 
             SqlCommand command = conn.CreateCommand();
             command.Connection = conn;
@@ -306,7 +299,7 @@ public class QueryUpsertReady<T> : ITransaction
 
             if (_sqlParams.Count > 0)
             {
-                command.Parameters.AddRange(_sqlParams.ToArray());
+                command.Parameters.AddRange([.. _sqlParams]);
             }
 
             affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);

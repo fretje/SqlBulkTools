@@ -3,25 +3,16 @@
 /// <summary>
 /// 
 /// </summary>
-public class DataTableColumns<T>
+/// <remarks>
+/// 
+/// </remarks>
+public class DataTableColumns<T>(IEnumerable<T> list, Dictionary<string, Type> propTypes, DataTableOperations ext)
 {
-    private HashSet<string> Columns { get; set; }
-    private readonly IEnumerable<T> _list;
-    private readonly DataTableOperations _ext;
-    private readonly Dictionary<string, int> _ordinalDic;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public DataTableColumns(IEnumerable<T> list, Dictionary<string, Type> propTypes, DataTableOperations ext)
-    {
-        _list = list;
-        _ext = ext;
-        Columns = new HashSet<string>();
-        _ordinalDic = new Dictionary<string, int>();
-        _propertyInfoList = PropInfoList.From<T>(propTypes);
-    }
+    private HashSet<string> Columns { get; set; } = [];
+    private readonly IEnumerable<T> _list = list;
+    private readonly DataTableOperations _ext = ext;
+    private readonly Dictionary<string, int> _ordinalDic = [];
+    private readonly List<PropInfo> _propertyInfoList = PropInfoList.From<T>(propTypes);
 
     /// <summary>
     /// Add each column that you want to include in the DataTable manually. 

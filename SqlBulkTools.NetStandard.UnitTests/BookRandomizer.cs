@@ -27,7 +27,9 @@ public class PriceBuilder : ISpecimenBuilder
         if (pi == null ||
             pi.Name != "Price" ||
             pi.PropertyType != typeof(decimal))
+        {
             return new NoSpecimen();
+        }
 
         return context.Resolve(
             new RangedNumberRequest(typeof(decimal), 1.0m, 268.5m));
@@ -42,9 +44,10 @@ public class IsbnBuilder : ISpecimenBuilder
         if (pi != null &&
             pi.Name == "ISBN" &&
             pi.PropertyType == typeof(string))
-
+        {
             return context.Resolve(typeof(string))
                 .ToString()[..13];
+        }
 
         return new NoSpecimen();
     }
@@ -58,9 +61,10 @@ public class TitleBuilder : ISpecimenBuilder
         if (pi != null &&
             pi.Name == "Title" &&
             pi.PropertyType == typeof(string))
-
+        {
             return context.Resolve(typeof(string))
                     .ToString()[..10];
+        }
 
         return new NoSpecimen();
     }

@@ -67,8 +67,7 @@ public class BulkOperationsAsyncIt
 
         await BulkDeleteAsync(_dataAccess.GetBookList());
 
-        _bookCollection = new List<Book>();
-        _bookCollection.AddRange(BookRandomizer.GetRandomCollection(rows));
+        _bookCollection = [.. BookRandomizer.GetRandomCollection(rows)];
         var results = new List<long>();
 
         Trace.WriteLine("Testing BulkInsertAsync with " + rows + " rows");

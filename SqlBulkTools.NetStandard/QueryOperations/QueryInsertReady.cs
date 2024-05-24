@@ -7,40 +7,28 @@ namespace SqlBulkTools.QueryOperations;
 ///
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryInsertReady<T> : ITransaction
+/// <remarks>
+///
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="sqlParams"></param>
+/// <param name="propertyInfoList"></param>
+public class QueryInsertReady<T>(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
+    List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList) : ITransaction
 {
-    private readonly T _singleEntity;
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly HashSet<string> _columns;
-    private readonly Dictionary<string, string> _customColumnMappings;
+    private readonly T _singleEntity = singleEntity;
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly HashSet<string> _columns = columns;
+    private readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
     private string _identityColumn;
-    private ColumnDirectionType _outputIdentity;
-    private readonly List<SqlParameter> _sqlParams;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="sqlParams"></param>
-    /// <param name="propertyInfoList"></param>
-    public QueryInsertReady(T singleEntity, string tableName, string schema, HashSet<string> columns, Dictionary<string, string> customColumnMappings,
-        List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
-    {
-        _singleEntity = singleEntity;
-        _tableName = tableName;
-        _schema = schema;
-        _columns = columns;
-        _customColumnMappings = customColumnMappings;
-        _sqlParams = sqlParams;
-        _outputIdentity = ColumnDirectionType.Input;
-        _propertyInfoList = propertyInfoList;
-    }
+    private ColumnDirectionType _outputIdentity = ColumnDirectionType.Input;
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// Sets the identity column for the table.
@@ -49,15 +37,15 @@ public class QueryInsertReady<T> : ITransaction
     /// <returns></returns>
     public QueryInsertReady<T> SetIdentityColumn(Expression<Func<T, object>> columnName)
     {
-        var propertyName = BulkOperationsHelper.GetPropertyName(columnName);
-
-        if (propertyName == null)
-            throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
-
+        var propertyName = BulkOperationsHelper.GetPropertyName(columnName) ?? throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
         if (_identityColumn == null)
+        {
             _identityColumn = BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName);
+        }
         else
+        {
             throw new SqlBulkToolsException("Can't have more than one identity column");
+        }
 
         _columns.Add(propertyName);
 
@@ -76,14 +64,20 @@ public class QueryInsertReady<T> : ITransaction
         _outputIdentity = direction;
 
         if (propertyName == null)
+        {
             throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
+        }
 
         if (_identityColumn == null)
         {
             if (_customColumnMappings.TryGetValue(propertyName, out string actualPropertyName))
+            {
                 _identityColumn = actualPropertyName;
+            }
             else
+            {
                 _identityColumn = propertyName;
+            }
         }
         else
         {
@@ -106,7 +100,9 @@ public class QueryInsertReady<T> : ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -123,7 +119,9 @@ public class QueryInsertReady<T> : ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -145,7 +143,9 @@ public class QueryInsertReady<T> : ITransaction
         }
 
         if (connection.State != ConnectionState.Open)
+        {
             connection.Open();
+        }
 
         try
         {
@@ -173,7 +173,7 @@ public class QueryInsertReady<T> : ITransaction
 
             if (_sqlParams.Count > 0)
             {
-                command.Parameters.AddRange(_sqlParams.ToArray());
+                command.Parameters.AddRange([.. _sqlParams]);
             }
 
             affectedRows = command.ExecuteNonQuery();
@@ -227,7 +227,9 @@ public class QueryInsertReady<T> : ITransaction
         }
 
         if (connection.State != ConnectionState.Open)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         try
         {
@@ -255,7 +257,7 @@ public class QueryInsertReady<T> : ITransaction
 
             if (_sqlParams.Count > 0)
             {
-                command.Parameters.AddRange(_sqlParams.ToArray());
+                command.Parameters.AddRange([.. _sqlParams]);
             }
 
             affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);

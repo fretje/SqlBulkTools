@@ -3,64 +3,45 @@
 /// <summary>
 /// 
 /// </summary>
-public abstract class AbstractOperation<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="bulk"></param>
+/// <param name="list"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="bulkCopySettings"></param>
+/// <param name="propertyInfoList"></param>
+public abstract class AbstractOperation<T>(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
+    Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList)
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    protected readonly BulkOperations bulk;
+    protected readonly BulkOperations bulk = bulk;
     // ReSharper disable InconsistentNaming
-    protected ColumnDirectionType _outputIdentity;
-    protected string _identityColumn;
-    protected readonly Dictionary<int, T> _outputIdentityDic;
-    protected bool _disableAllIndexes;
+    protected ColumnDirectionType _outputIdentity = ColumnDirectionType.Input;
+    protected string _identityColumn = null;
+    protected readonly Dictionary<int, T> _outputIdentityDic = [];
+    protected bool _disableAllIndexes = false;
     protected int _sqlTimeout;
-    protected readonly HashSet<string> _columns;
-    protected readonly string _schema;
-    protected readonly string _tableName;
-    protected readonly Dictionary<string, string> _customColumnMappings;
-    protected readonly IEnumerable<T> _list;
-    protected readonly List<string> _matchTargetOn;
+    protected readonly HashSet<string> _columns = columns;
+    protected readonly string _schema = schema;
+    protected readonly string _tableName = tableName;
+    protected readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
+    protected readonly IEnumerable<T> _list = list;
+    protected readonly List<string> _matchTargetOn = [];
     protected List<PredicateCondition> _updatePredicates;
     protected List<PredicateCondition> _deletePredicates;
     protected List<SqlParameter> _parameters;
-    protected readonly Dictionary<string, string> _collationColumnDic;
+    protected readonly Dictionary<string, string> _collationColumnDic = [];
     protected int _conditionSortOrder;
-    protected readonly BulkCopySettings _bulkCopySettings;
-    protected string _tableHint;
-    protected readonly Dictionary<string, int> _ordinalDic;
-    protected readonly List<PropInfo> _propertyInfoList;
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    protected readonly BulkCopySettings _bulkCopySettings = bulkCopySettings;
+    protected string _tableHint = "HOLDLOCK";
+    protected readonly Dictionary<string, int> _ordinalDic = [];
+    protected readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="bulk"></param>
-    /// <param name="list"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="bulkCopySettings"></param>
-    /// <param name="propertyInfoList"></param>
-    protected AbstractOperation(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
-        Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList)
-    {
-        this.bulk = bulk;
-        _list = list;
-        _tableName = tableName;
-        _schema = schema;
-        _columns = columns;
-        _disableAllIndexes = false;
-        _customColumnMappings = customColumnMappings;
-        _identityColumn = null;
-        _collationColumnDic = new Dictionary<string, string>();
-        _outputIdentityDic = new Dictionary<int, T>();
-        _outputIdentity = ColumnDirectionType.Input;
-        _matchTargetOn = new List<string>();
-        _bulkCopySettings = bulkCopySettings;
-        _tableHint = "HOLDLOCK";
-        _ordinalDic = new Dictionary<string, int>();
-        _propertyInfoList = propertyInfoList;
-    }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
     /// <summary>
     /// 
@@ -71,12 +52,18 @@ public abstract class AbstractOperation<T>
     protected void SetIdentity(string columnName)
     {
         if (columnName == null)
+        {
             throw new SqlBulkToolsException("SetIdentityColumn column name can't be null");
+        }
 
         if (_identityColumn == null)
+        {
             _identityColumn = BulkOperationsHelper.GetActualColumn(_customColumnMappings, columnName);
+        }
         else
+        {
             throw new SqlBulkToolsException("Can't have more than one identity column");
+        }
     }
 
     /// <summary>
@@ -134,7 +121,9 @@ public abstract class AbstractOperation<T>
     protected void SetCollation(string propertyName, string collation)
     {
         if (propertyName == null)
+        {
             throw new SqlBulkToolsException("Collation can't be null");
+        }
 
         _collationColumnDic.Add(BulkOperationsHelper.GetActualColumn(_customColumnMappings, propertyName), collation);
     }

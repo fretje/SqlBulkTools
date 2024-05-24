@@ -374,7 +374,7 @@ internal static class BulkOperationsHelper
         var command = new StringBuilder();
         var paramsSeparated = new List<string>();
 
-        excludeFromUpdate ??= new HashSet<string>();
+        excludeFromUpdate ??= [];
 
         command.Append("SET ");
 
@@ -408,7 +408,7 @@ internal static class BulkOperationsHelper
         var paramsSeparated = new List<string>();
 
         // To prevent null reference exception
-        excludeFromUpdate ??= new HashSet<string>();
+        excludeFromUpdate ??= [];
 
         command.Append("SET ");
 
@@ -754,10 +754,7 @@ internal static class BulkOperationsHelper
     {
         foreach (var col in matchOnColumns)
         {
-            if (!columns.Contains(col))
-            {
-                columns.Add(col);
-            }
+            columns.Add(col);
         }
         return columns;
     }
@@ -1000,12 +997,20 @@ internal static class BulkOperationsHelper
                     var index = Convert.ToInt32(match.Value) - 1;
 
                     FieldInfo fi = typeof(SqlBulkCopy).GetField("_sortedColumnMappings", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (fi is null) continue;
+                    if (fi is null)
+                    {
+                        continue;
+                    }
+
                     var sortedColumns = fi.GetValue(bulkcopy);
                     var items = (object[])sortedColumns.GetType().GetField("_items", BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(sortedColumns);
 
                     FieldInfo itemData = items?[index].GetType().GetField("_metadata", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (itemData == null) continue;
+                    if (itemData == null)
+                    {
+                        continue;
+                    }
+
                     var metadata = itemData.GetValue(items[index]);
 
                     var column = metadata.GetType().GetField("column", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)?.GetValue(metadata);

@@ -22,17 +22,16 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
     /// <param name="bulkCopySettings"></param>
     /// <param name="propertyInfoList"></param>
     public BulkInsertOrUpdate(BulkOperations bulk, IEnumerable<T> list, string tableName, string schema, HashSet<string> columns,
-        Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) :
-
-        base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
+        Dictionary<string, string> customColumnMappings, BulkCopySettings bulkCopySettings, List<PropInfo> propertyInfoList) 
+        : base(bulk, list, tableName, schema, columns, customColumnMappings, bulkCopySettings, propertyInfoList)
     {
         _deleteWhenNotMatchedFlag = false;
-        _updatePredicates = new List<PredicateCondition>();
-        _deletePredicates = new List<PredicateCondition>();
-        _parameters = new List<SqlParameter>();
+        _updatePredicates = [];
+        _deletePredicates = [];
+        _parameters = [];
         _conditionSortOrder = 1;
-        _excludeFromUpdate = new HashSet<string>();
-        _nullableColumnDic = new Dictionary<string, bool>();
+        _excludeFromUpdate = [];
+        _nullableColumnDic = [];
     }
 
     /// <summary>
@@ -45,7 +44,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
     public BulkInsertOrUpdate<T> MatchTargetOn(string columnName)
     {
         if (string.IsNullOrWhiteSpace(columnName))
+        {
             throw new ArgumentNullException(nameof(columnName));
+        }
 
         _matchTargetOn.Add(columnName);
 
@@ -149,7 +150,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
     public BulkInsertOrUpdate<T> ExcludeColumnFromUpdate(string columnName)
     {
         if (columnName == null)
+        {
             throw new SqlBulkToolsException("ExcludeColumnFromUpdate column name can't be null");
+        }
 
         if (!_columns.Contains(columnName))
         {
@@ -247,7 +250,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
     public int Commit(IDbConnection connection, IDbTransaction transaction = null)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return Commit((SqlConnection)connection, (SqlTransaction)transaction);
     }
@@ -264,7 +269,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
     public Task<int> CommitAsync(IDbConnection connection, IDbTransaction transaction = null, CancellationToken cancellationToken = default)
     {
         if (connection is SqlConnection == false)
+        {
             throw new ArgumentException("Parameter must be a SqlConnection instance");
+        }
 
         return CommitAsync((SqlConnection)connection, (SqlTransaction)transaction, cancellationToken);
     }
@@ -287,8 +294,10 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
         }
 
         if (!_deleteWhenNotMatchedFlag && _deletePredicates.Count > 0)
+        {
             throw new SqlBulkToolsException($"{BulkOperationsHelper.GetPredicateMethodName(PredicateType.Delete)} only usable on BulkInsertOrUpdate " +
                                             $"method when 'DeleteWhenNotMatched' is set to true.");
+        }
 
         MatchTargetCheck();
 
@@ -301,7 +310,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _updatePredicates);
 
         if (connection.State != ConnectionState.Open)
+        {
             connection.Open();
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -341,7 +352,7 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
 
             if (_parameters.Count > 0)
             {
-                command.Parameters.AddRange(_parameters.ToArray());
+                command.Parameters.AddRange([.. _parameters]);
             }
 
             affectedRows = command.ExecuteNonQuery();
@@ -388,8 +399,10 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
         }
 
         if (!_deleteWhenNotMatchedFlag && _deletePredicates.Count > 0)
+        {
             throw new SqlBulkToolsException($"{BulkOperationsHelper.GetPredicateMethodName(PredicateType.Delete)} only usable on BulkInsertOrUpdate " +
                                             $"method when 'DeleteWhenNotMatched' is set to true.");
+        }
 
         MatchTargetCheck();
 
@@ -402,7 +415,9 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
         BulkOperationsHelper.DoColumnMappings(_customColumnMappings, _updatePredicates);
 
         if (connection.State != ConnectionState.Open)
+        {
             await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
 
         var dtCols = BulkOperationsHelper.GetDatabaseSchema(bulk, connection, _schema, _tableName);
 
@@ -442,7 +457,7 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
 
             if (_parameters.Count > 0)
             {
-                command.Parameters.AddRange(_parameters.ToArray());
+                command.Parameters.AddRange([.. _parameters]);
             }
 
             affectedRows = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
@@ -480,14 +495,14 @@ public class BulkInsertOrUpdate<T> : AbstractOperation<T>, ITransaction
         "MERGE INTO " + BulkOperationsHelper.GetFullQualifyingTableName(connection.Database, _schema, _tableName) +
         $" WITH ({_tableHint}) AS Target " +
         "USING " + Constants.TempTableName + " AS Source " +
-        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate(_matchTargetOn.ToArray(),
+        BulkOperationsHelper.BuildJoinConditionsForInsertOrUpdate([.. _matchTargetOn],
             Constants.SourceAlias, Constants.TargetAlias, _collationColumnDic, _nullableColumnDic) +
-        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery(_matchTargetOn.ToArray(), _updatePredicates, Constants.TargetAlias, _collationColumnDic) +
+        "WHEN MATCHED " + BulkOperationsHelper.BuildPredicateQuery([.. _matchTargetOn], _updatePredicates, Constants.TargetAlias, _collationColumnDic) +
         "THEN UPDATE " +
         BulkOperationsHelper.BuildUpdateSet(_columns, Constants.SourceAlias, Constants.TargetAlias, _identityColumn, _excludeFromUpdate) +
         "WHEN NOT MATCHED BY TARGET THEN " +
         BulkOperationsHelper.BuildInsertSet(_columns, Constants.SourceAlias, _identityColumn) +
-        (_deleteWhenNotMatchedFlag ? " WHEN NOT MATCHED BY SOURCE " + BulkOperationsHelper.BuildPredicateQuery(_matchTargetOn.ToArray(),
+        (_deleteWhenNotMatchedFlag ? " WHEN NOT MATCHED BY SOURCE " + BulkOperationsHelper.BuildPredicateQuery([.. _matchTargetOn],
         _deletePredicates, Constants.TargetAlias, _collationColumnDic) +
         "THEN DELETE " : " ") +
         BulkOperationsHelper.GetOutputIdentityCmd(_identityColumn, _outputIdentity, Constants.TempOutputTableName,

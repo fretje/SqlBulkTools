@@ -47,7 +47,7 @@ public class DataTableOperationsTests
         // Arrange
         var dtOps = new DataTableOperations();
         dtOps.SetupDataTable<Book>()
-            .ForCollection(new List<Book> { new Book { Description = "A book" } })
+            .ForCollection([new Book { Description = "A book" }])
             .AddAllColumns()
             .PrepareDataTable();
 

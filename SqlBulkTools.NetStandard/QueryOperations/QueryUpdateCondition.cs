@@ -4,43 +4,29 @@
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class QueryUpdateCondition<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="singleEntity"></param>
+/// <param name="tableName"></param>
+/// <param name="schema"></param>
+/// <param name="columns"></param>
+/// <param name="customColumnMappings"></param>
+/// <param name="sqlParams"></param>
+/// <param name="propertyInfoList"></param>
+public class QueryUpdateCondition<T>(T singleEntity, string tableName, string schema, HashSet<string> columns,
+    Dictionary<string, string> customColumnMappings, List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
 {
-    private readonly T _singleEntity;
-    private readonly string _tableName;
-    private readonly string _schema;
-    private readonly HashSet<string> _columns;
-    private readonly Dictionary<string, string> _customColumnMappings;
-    private readonly List<PredicateCondition> _whereConditions;
-    private int _conditionSortOrder;
-    private readonly List<SqlParameter> _sqlParams;
-    private readonly Dictionary<string, string> _collationColumnDic;
-    private readonly List<PropInfo> _propertyInfoList;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="singleEntity"></param>
-    /// <param name="tableName"></param>
-    /// <param name="schema"></param>
-    /// <param name="columns"></param>
-    /// <param name="customColumnMappings"></param>
-    /// <param name="sqlParams"></param>
-    /// <param name="propertyInfoList"></param>
-    public QueryUpdateCondition(T singleEntity, string tableName, string schema, HashSet<string> columns, 
-        Dictionary<string, string> customColumnMappings, List<SqlParameter> sqlParams, List<PropInfo> propertyInfoList)
-    {
-        _singleEntity = singleEntity;
-        _tableName = tableName;
-        _schema = schema;
-        _columns = columns;
-        _customColumnMappings = customColumnMappings;
-        _whereConditions = new List<PredicateCondition>();
-        _collationColumnDic = new Dictionary<string, string>();
-        _sqlParams = sqlParams;
-        _conditionSortOrder = 1;
-        _propertyInfoList = propertyInfoList;
-    }
+    private readonly T _singleEntity = singleEntity;
+    private readonly string _tableName = tableName;
+    private readonly string _schema = schema;
+    private readonly HashSet<string> _columns = columns;
+    private readonly Dictionary<string, string> _customColumnMappings = customColumnMappings;
+    private readonly List<PredicateCondition> _whereConditions = [];
+    private int _conditionSortOrder = 1;
+    private readonly List<SqlParameter> _sqlParams = sqlParams;
+    private readonly Dictionary<string, string> _collationColumnDic = [];
+    private readonly List<PropInfo> _propertyInfoList = propertyInfoList;
 
     /// <summary>
     /// </summary>

@@ -4,29 +4,15 @@
 /// Configurable options for table. 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class DeleteQueryTable<T>
+/// <remarks>
+/// 
+/// </remarks>
+/// <param name="tableName"></param>
+public class DeleteQueryTable<T>(string tableName)
 {
-    private HashSet<string> Columns { get; set; }
-    private string _schema;
-    private readonly string _tableName;
-    private Dictionary<string, string> CustomColumnMappings { get; set; }
-    private int _sqlTimeout;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="tableName"></param>
-    public DeleteQueryTable(string tableName)
-    {
-        _sqlTimeout = 600;
-        _schema = Constants.DefaultSchemaName;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
-        _tableName = tableName;
-        _schema = Constants.DefaultSchemaName;
-        Columns = new HashSet<string>();
-        CustomColumnMappings = new Dictionary<string, string>();
-    }
+    private string _schema = Constants.DefaultSchemaName;
+    private readonly string _tableName = tableName;
+    private int _sqlTimeout = 600;
 
     /// <summary>
     /// All rows matching the condition(s) selected will be deleted. If you need to delete a collection of objects that can't be
