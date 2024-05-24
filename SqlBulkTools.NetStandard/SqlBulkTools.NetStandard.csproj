@@ -17,7 +17,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'!='ReleaseSystemData'">
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
