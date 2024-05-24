@@ -13,7 +13,7 @@ Now also supports entities of type Dictionary&lt;string, object&gt; for easy imp
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 
-		<Version>0.0.14</Version>
+		<Version>0.0.15</Version>
 
 		<PackageIcon>icon-large.png</PackageIcon>
 		<PackageIconUrl>https://github.com/fretje/SqlBulkTools/blob/master/Images/icon-large.png?raw=true</PackageIconUrl>
