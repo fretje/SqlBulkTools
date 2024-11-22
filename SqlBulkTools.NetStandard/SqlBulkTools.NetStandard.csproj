@@ -13,7 +13,7 @@
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='ReleaseSystemData'">
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'!='ReleaseSystemData'">
