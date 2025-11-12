@@ -12,7 +12,6 @@ public class DeleteQueryTable<T>(string tableName)
 {
     private string _schema = Constants.DefaultSchemaName;
     private readonly string _tableName = tableName;
-    private int _sqlTimeout = 600;
 
     /// <summary>
     /// All rows matching the condition(s) selected will be deleted. If you need to delete a collection of objects that can't be
@@ -21,7 +20,7 @@ public class DeleteQueryTable<T>(string tableName)
     /// <returns></returns>
     public DeleteQueryCondition<T> Delete()
     {
-        return new DeleteQueryCondition<T>(_tableName, _schema, _sqlTimeout);
+        return new DeleteQueryCondition<T>(_tableName, _schema);
     }
 
     /// <summary>
@@ -32,17 +31,6 @@ public class DeleteQueryTable<T>(string tableName)
     public DeleteQueryTable<T> WithSchema(string schema)
     {
         _schema = schema;
-        return this;
-    }
-
-    /// <summary>
-    /// Default is 600 seconds. See docs for more info. 
-    /// </summary>
-    /// <param name="seconds"></param>
-    /// <returns></returns>
-    public DeleteQueryTable<T> WithSqlCommandTimeout(int seconds)
-    {
-        _sqlTimeout = seconds;
         return this;
     }
 }

@@ -9,8 +9,7 @@
 /// </remarks>
 /// <param name="tableName"></param>
 /// <param name="schema"></param>
-/// <param name="sqlTimeout"></param>
-public class DeleteQueryCondition<T>(string tableName, string schema, int sqlTimeout)
+public class DeleteQueryCondition<T>(string tableName, string schema)
 {
     private readonly string _tableName = tableName;
     private readonly string _schema = schema;
